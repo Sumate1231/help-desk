@@ -10,11 +10,14 @@ import CreateForm from "./Pages/CreateUpdate/CreateForm";
 import "react-dropzone-uploader/dist/styles.css";
 import BranchList from "./Auth/BranchList";
 import Profiles from "./Auth/Profiles";
+import { Setting } from "./Pages/Setting/Setting";
 // import { User } from "./Types/auth/userType";
 
 export const ProtectedRoute = ({ children }: any) => {
   const auth = JSON.parse(localStorage.getItem("auth") as any);
-
+  if (auth === null) {
+    return <Navigate to="/login" />;
+  }
   if (!auth.is_auth) {
     return <Navigate to="/login" />;
   }
@@ -23,7 +26,9 @@ export const ProtectedRoute = ({ children }: any) => {
 
 export const ProtectedRouteBranch = ({ children }: any) => {
   const user = JSON.parse(localStorage.getItem("user") as any);
-
+  if (user === null) {
+    return <Navigate to="/login" />;
+  }
   if (user.change_branch_code !== "1") {
     return <Navigate to="/login" />;
   }
@@ -45,6 +50,7 @@ const App = () => {
         { path: "report", element: <ReportHelpDesk /> },
         { path: "add", element: <CreateForm /> },
         { path: "profiles", element: <Profiles /> },
+        { path: "setting", element: <Setting /> },
       ],
     },
     {

@@ -14,6 +14,7 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import { useNavigate } from "react-router-dom";
 import { NavLink as RouterLink } from "react-router-dom";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const drawerWidth = 240;
 
@@ -79,6 +80,8 @@ export default function Menu({ open, handleDrawerClose }: any) {
       case 2:
         navigate("/report");
         break;
+      case 3:
+        navigate("/setting");
     }
   };
 
@@ -90,6 +93,8 @@ export default function Menu({ open, handleDrawerClose }: any) {
         return <AddBoxIcon />;
       case "รายงาน":
         return <AssessmentIcon />;
+      case "ตั้งค่า":
+        return <SettingsIcon />;
     }
   }
 
@@ -105,6 +110,10 @@ export default function Menu({ open, handleDrawerClose }: any) {
     {
       title: "รายงาน",
       Path: "/report",
+    },
+    {
+      title: "ตั้งค่า",
+      Path: "/setting",
     },
   ];
 

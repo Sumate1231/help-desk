@@ -10,12 +10,13 @@ import {
   ListItemButton,
   ListItemIcon,
   ListSubheader,
+  Typography,
 } from "@mui/material";
 import InboxIcon from "@mui/icons-material/Inbox";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import { useNavigate } from "react-router-dom";
 import AuthWithBranch from "../Types/auth/authType";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export default function BranchList() {
   // const location = useLocation();
@@ -51,13 +52,14 @@ export default function BranchList() {
         display="flex"
         sx={{ mt: 5 }}
       >
-        <Card sx={{ minWidth: 420 }} elevation={3}>
+        <Card sx={{ minWidth: 450 ,p: 2}} elevation={3}>
           <CardContent>
+            <Typography variant="h6" color="#3A70CE">เลือกสาขา</Typography>
             <List
               component="nav"
-              subheader={
-                <ListSubheader sx={{ fontSize: 16 }}>เลือกสาขา</ListSubheader>
-              }
+              // subheader={
+              //   <ListSubheader sx={{ fontSize: 16 }}>เลือกสาขา</ListSubheader>
+              // }
             >
               {user.branch_list &&
                 user.branch_list.map((item: any) => (
@@ -85,12 +87,14 @@ export default function BranchList() {
                   </ListItemButton>
                 ))}
             </List>
-            <Button 
-            sx={{ mt: 2 }} 
-            fullWidth 
-            variant="contained"
-            startIcon={<ArrowBackIcon/>}
-            onClick={() => {navigate(-1)}}
+            <Button
+              sx={{ mt: 2 }}
+              fullWidth
+              variant="contained"
+              startIcon={<ArrowBackIcon />}
+              onClick={() => {
+                navigate(-1);
+              }}
             >
               ย้อนกลับ
             </Button>

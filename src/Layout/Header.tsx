@@ -11,6 +11,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import InboxIcon from "@mui/icons-material/Inbox";
 import StorageIcon from "@mui/icons-material/Storage";
+import CustomizedSwitches from "../components/Dialog/CustomizedSwitches";
 
 const drawerWidth = 240;
 interface AppBarProps extends MuiAppBarProps {
@@ -65,13 +66,8 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 export default function Header({ open, handleDrawerOpen }: any) {
-  // const location = useLocation();
-  // const branch = location.state;
-
   let user = JSON.parse(localStorage.getItem("user") as any);
   let authItem = JSON.parse(localStorage.getItem("auth") as any);
-
-  console.log(user.profile[0].path_image);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -115,8 +111,9 @@ export default function Header({ open, handleDrawerOpen }: any) {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          แจ้งซ่อม
+          HRMS
         </Typography>
+        <CustomizedSwitches/>
         <div>
           <IconButton
             size="large"
@@ -132,9 +129,9 @@ export default function Header({ open, handleDrawerOpen }: any) {
               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               variant="dot"
             >
-              <Avatar alt="รูปส่วนตัว" src={user.profile[0].path_image} />
+              <Avatar alt="รูปส่วนตัว" src={user && user.profile[0].path_image} />
             </StyledBadge>
-            <Typography sx={{marginLeft: 1}}>{user.profile[0].fullname}</Typography>
+            <Typography sx={{marginLeft: 1}}>{user && user.profile[0].fullname}</Typography>
           </IconButton>
           <Menu
             sx={{ mt: "45px" }}
@@ -162,7 +159,7 @@ export default function Header({ open, handleDrawerOpen }: any) {
               <ListItemIcon>
                 <StorageIcon fontSize="small" />
               </ListItemIcon>
-              {user.server_name}
+              {user && user.server_name}
             </MenuItem>
             {authItem && (
               <MenuItem onClick={() => handleClose("branch")}>

@@ -4,7 +4,7 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 
 interface RHFAutocompleteFieldProps<
-  O extends { id: string; name_1: string },
+  O extends { code: string; name_1: string },
   TField extends FieldValues
 > {
   control: Control<TField>;
@@ -12,15 +12,16 @@ interface RHFAutocompleteFieldProps<
   options: O[];
   placeholder?: string;
   req_name?: string;
+  setFunction?: any;
 }
 
 export const CustomAutocomplete = <
-  O extends { id: string; name_1: string },
+  O extends { code: string; name_1: string },
   TField extends FieldValues
 >(
   props: RHFAutocompleteFieldProps<O, TField>
 ) => {
-  const { control, options, name } = props;
+  const { control, options, name, setFunction } = props;
   return (
     <Controller
       name={name}
@@ -33,10 +34,11 @@ export const CustomAutocomplete = <
         return (
           <>
             <Autocomplete
+              blurOnSelect
               value={
                 value
                   ? options.find((option) => {
-                      return value === option.id;
+                      return value === option.code;
                     }) ?? null
                   : null
               }
@@ -44,10 +46,19 @@ export const CustomAutocomplete = <
                 return option.name_1;
               }}
               onChange={(event: any, newValue) => {
-                onChange(newValue ? newValue.id : null);
+                // console.log(newValue ? newValue.for_key : null);
+                const loCode: any = newValue ? newValue.for_key : null;
+                {setFunction && setFunction(loCode)}
+                onChange(newValue ? newValue.code : null);
               }}
-              id="controllable-states-demo"
               options={options}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.code}>
+                    {option.name_1}
+                  </li>
+                );
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}

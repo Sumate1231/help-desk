@@ -1,6 +1,9 @@
 import * as React from "react";
 import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
-import { Stack, TextField, Typography } from "@mui/material";
+import { IconButton, Paper } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FullScreenDialog from "../Dialog/FullScreenDialog";
 
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", width: 70 },
@@ -17,9 +20,55 @@ const columns: GridColDef[] = [
     headerName: "Full name",
     description: "This column has a value getter and is not sortable.",
     sortable: false,
-    width: 160,
+    width: 250,
     valueGetter: (params: GridValueGetterParams) =>
       `${params.row.firstName || ""} ${params.row.lastName || ""}`,
+  },
+  {
+    field: "action",
+    headerName: "Action",
+    sortable: false,
+    width: 130,
+    disableColumnMenu: true,
+    disableReorder: true,
+    editable: false,
+    renderCell: (params) => {
+      const handleButtonClick = () => {
+        const [open, setOpen] = React.useState(false);
+
+        const handleClickOpen = () => {
+          setOpen(true);
+        };
+
+        const handleClose = () => {
+          setOpen(false);
+        };
+
+        console.log(`Button clicked for row with id ${params.id}`);
+        <FullScreenDialog
+          open={open}
+          handleClose={handleClose}
+        />;
+      };
+      return (
+        <div>
+          <IconButton
+            aria-label="edit"
+            color="primary"
+            onClick={handleButtonClick}
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            aria-label="delete"
+            color="secondary"
+            onClick={handleButtonClick}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </div>
+      );
+    },
   },
 ];
 
@@ -40,7 +89,7 @@ export default function GridList() {
 
   const filteredRows = rows.filter((row) =>
     Object.values(row).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      value.toString().toLowerCase().includes(searchTerm)
     )
   );
 
@@ -60,17 +109,19 @@ export default function GridList() {
         />
       </Stack> */}
       <div style={{ height: 400, width: "100%" }}>
-        <DataGrid
-          rows={filteredRows}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
-            },
-          }}
-          pageSizeOptions={[5, 10]}
-          // checkboxSelection
-        />
+        <Paper elevation={3}>
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: { page: 0, pageSize: 5 },
+              },
+            }}
+            pageSizeOptions={[5, 10]}
+            // checkboxSelection
+          />
+        </Paper>
       </div>
     </>
   );

@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   Box,
   Card,
   CardContent,
@@ -9,6 +8,11 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  List,
+  ListItem,
+  ListItemText,
+  ListSubheader,
+  Typography,
 } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import CustomBreadcrumbs from "../../components/Navigation/CustomBreadcrumbs";
@@ -26,12 +30,11 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { CustomAutocomplete } from "../../components/Dialog/CustomAutocomplete";
 import { CustomTextField } from "../../components/Dialog/CustomTextField";
-import PhoneInput from "react-phone-number-input";
 import CustomFileUploader from "../../components/Dialog/CustomFileUploader";
-
-const getUploadParams = () => {
-  return { url: "https://httpbin.org/post" };
-};
+import { type } from "os";
+import axios from "axios";
+import { error } from "console";
+import CustomBackdrop from "../../components/Dialog/CustomBackdrop";
 
 const Layout = ({
   input,
@@ -69,23 +72,75 @@ type Inputs = {
   is_fast: boolean;
 };
 
-const CreateForm = () => {
-  const dataList = [
-    {
-      id: "",
-      name_1: "เลือก",
-    },
-    {
-      id: "1",
-      name_1: "text1",
-    },
-    {
-      id: "2",
-      name_1: "text2",
-    },
-  ];
+type dataList = {
+  code: string;
+  name_1: string;
+  for_key: string;
+};
 
-  const { register, handleSubmit, control ,formState,reset} = useForm<Inputs>();
+const CreateForm = () => {
+  const user = JSON.parse(localStorage.getItem("user") as any);
+  const auth = JSON.parse(localStorage.getItem("auth") as any);
+  const token = user.token;
+
+  const [assets, setAssets] = React.useState<dataList[] | []>([]);
+  const [assLocation, setAssLocation] = React.useState<dataList[] | []>([]);
+  const [department, setDepartment] = React.useState<dataList[] | []>([]);
+  const [userList, setUserList] = React.useState<dataList[] | []>([]);
+  const [category, setCategory] = React.useState<dataList[] | []>([]);
+  const [helpType, setHelpType] = React.useState<dataList[] | []>([]);
+  const [loadPage, setLoadPage] = React.useState(false);
+  const [locaValue, setLocaValue] = React.useState("");
+  const [cateValue, setCateValue] = React.useState("");
+
+  const loadData = async () => {
+    setLoadPage(true);
+    axios
+      .get("https://localhost:44348/api/assets", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setLoadPage(false);
+        const json = res.data;
+        setAssets(json.data.assets);
+        setAssLocation(json.data.assetLocation);
+        setDepartment(json.data.department);
+        setUserList(json.data.userList);
+        setCategory(json.data.category);
+        setHelpType(json.data.help_type);
+      })
+      .catch((error) => {
+        setLoadPage(false);
+        console.log(error);
+      });
+  };
+
+  React.useEffect(() => {
+    loadData();
+  }, []);
+
+  const setLocation = (location_code: string) => {
+    setLocaValue(location_code);
+  };
+
+  const newLocation = assLocation.filter((row) => {
+    return row.code == locaValue;
+  });
+
+  const setCate = (cate_id: string) => {
+    // console.log(cate_id)
+    setCateValue(cate_id);
+  };
+
+  const newCate = category.filter((row) => {
+    return row.code == cateValue;
+  });
+
+  const { register, handleSubmit, control, formState, reset } =
+    useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     console.log(data);
@@ -99,7 +154,6 @@ const CreateForm = () => {
   }, [formState, reset]);
 
   const [loading, setLoading] = React.useState(false);
-  const [value, setValue] = React.useState()
 
   return (
     <Container maxWidth="lg">
@@ -112,6 +166,7 @@ const CreateForm = () => {
             <CustomBreadcrumbs name="เพิ่มรายการแจ้งซ่อม" isActive={true} />
           </Box>
         </Grid>
+        <CustomBackdrop open={loadPage} />
         <Grid item xs={12}>
           <Card elevation={3}>
             <CardHeader
@@ -134,6 +189,34 @@ const CreateForm = () => {
                 //   "& > :not(style)": { m: 1, width: "50ch" },
                 // }}
               >
+                {/* <div>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={{ xs: 1, sm: 2 }}
+                  >
+                    <List
+                      dense={true}
+                      subheader={
+                        <Typography sx={{ fontSize: 16 }}>
+                          ข้อมูลผู้แจ้ง
+                        </Typography>
+                      }
+                    >
+                      <ListItem>
+                        <ListItemText
+                          primary={user.profile[0].fullname}
+                          secondary={"ชื่อ-สกุล"}
+                        />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText
+                          primary={`${auth.branch_code} - ${auth.branch_name}`}
+                          secondary={"สาขา"}
+                        />
+                      </ListItem>
+                    </List>
+                  </Stack>
+                </div> */}
                 <div>
                   <Stack
                     direction={{ xs: "column", sm: "row" }}
@@ -141,79 +224,85 @@ const CreateForm = () => {
                   >
                     <FormControl fullWidth>
                       <CustomAutocomplete
-                        options={dataList}
+                        options={helpType}
                         control={control}
                         name="cate_code"
                         placeholder="ชนิดงานซ่อม"
                         req_name="กรุณาเลือกชนิดงานซ่อม"
+                        setFunction={setCate}
                       />
                     </FormControl>
                     <FormControl fullWidth>
                       <CustomAutocomplete
-                        options={dataList}
+                        options={newCate}
                         control={control}
                         name="type_code"
                         placeholder="ประเภทงานซ่อม"
                         req_name="กรุณาเลือกประเภทงานซ่อม"
+                        // setLocation={setLocation}
                       />
                     </FormControl>
                   </Stack>
                 </div>
                 <div>
                   <Stack
-                    sx={{ marginTop: 2 }}
+                    sx={{ marginTop: 3 }}
                     direction={{ xs: "column", sm: "row" }}
                     spacing={{ xs: 1, sm: 2 }}
                   >
                     <FormControl fullWidth>
                       <CustomAutocomplete
-                        options={dataList}
+                        options={assets}
                         control={control}
                         name="asset_code"
                         placeholder="รหัสทรัพย์สิน"
                         req_name="กรุณาเลือกรหัสทรัพย์สิน"
+                        setFunction={setLocation}
                       />
                     </FormControl>
                     <FormControl fullWidth>
                       <CustomAutocomplete
-                        options={dataList}
+                        options={newLocation}
                         control={control}
                         name="location_asset"
                         placeholder="ที่ตั้งทรัพย์สิน"
                         req_name="กรุณาเลือกที่ตั้งทรัพย์สิน"
+                        // setLocation={setLocation}
                       />
                     </FormControl>
                   </Stack>
                 </div>
                 <div>
                   <Stack
-                    sx={{ marginTop: 2 }}
+                    sx={{ marginTop: 3 }}
                     direction={{ xs: "column", sm: "row" }}
                     spacing={{ xs: 1, sm: 2 }}
                   >
                     <FormControl fullWidth>
                       <CustomAutocomplete
-                        options={dataList}
+                        options={department}
                         control={control}
                         name="dep_code"
                         placeholder="แผนก/ฝ่าย"
                         req_name="กรุณาเลือกแผนก/ฝ่าย"
+                        // setLocation={setLocation}
                       />
                     </FormControl>
                     <FormControl fullWidth>
                       <CustomAutocomplete
-                        options={dataList}
+                        options={userList}
                         control={control}
                         name="user_code"
                         placeholder="เลือกผู้ใช้งาน"
                         req_name="กรุณาเลือกเลือกผู้ใช้งาน"
+                        // setLocation={setLocation}
                       />
                     </FormControl>
                   </Stack>
                 </div>
                 <div>
                   <Stack
-                    sx={{ marginTop: 2 }}
+                    sx={{ marginTop: 3 }}
                     direction={{ sx: "column", sm: "row" }}
                     spacing={{ xs: 1, sm: 2 }}
                   >
@@ -223,7 +312,7 @@ const CreateForm = () => {
                       placeholder="เบอร์ติดต่อกลับ"
                       req_name="กรุณาระบุเบอร์ติดต่อกลับ"
                     />
-                   
+
                     <CustomTextField
                       control={control}
                       name="description"
@@ -233,7 +322,7 @@ const CreateForm = () => {
                   </Stack>
                 </div>
                 <div>
-                  <Box sx={{ mt: 2 }}>
+                  <Box sx={{ mt: 3 }}>
                     {/* <Dropzone
                       getUploadParams={getUploadParams}
                       LayoutComponent={Layout}
@@ -243,19 +332,19 @@ const CreateForm = () => {
                       }}
                       inputContent="เลือกไฟล์"
                     /> */}
-                    <CustomFileUploader/>
+                    <CustomFileUploader />
                   </Box>
                 </div>
                 <div>
                   <FormControlLabel
-                    sx={{ fontWeight: "bold", mt: 2 }}
+                    sx={{ fontWeight: "bold", mt: 3 }}
                     control={<Checkbox {...register("is_fast")} />}
                     label="เร่งด่วน"
                   />
                 </div>
                 <div>
                   <Stack
-                    sx={{ marginTop: 2 }}
+                    sx={{ marginTop: 3 }}
                     direction={{ sx: "column", sm: "row" }}
                     spacing={{ xs: 1, sm: 2 }}
                   >
@@ -275,7 +364,9 @@ const CreateForm = () => {
                       startIcon={<CancelIcon />}
                       variant="outlined"
                       type="button"
-                      onClick={() => {reset()}}
+                      onClick={() => {
+                        reset();
+                      }}
                       // color="success"
                       // sx={{bgcolor: "#3f51b5"}}
                     >
